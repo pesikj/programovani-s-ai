@@ -1,0 +1,15 @@
+{% extends 'crm/base.html' %}
+{% block title %}{% if case %}Upravit případ{% else %}Nový případ{% endif %}{% endblock %}
+{% block content %}
+<div class="breadcrumb"><a href="{% url 'crm:case-list' %}">Obchodní případy</a>{% if case %} / <a href="{% url 'crm:case-detail' case.pk %}">{{ case.title }}</a>{% endif %}</div>
+<header class="page-header"><div><h1>{% if case %}Upravit případ{% else %}Nový obchodní případ{% endif %}</h1><p class="subtitle">{% if case %}Odpovědnost: {{ case.owner }}. Předávání přibude v další úloze.{% else %}Začněte základními údaji. Ostatní můžete doplnit později.{% endif %}</p></div></header>
+<div class="info">Tato meziverze zatím nekontroluje důvod uzavření ani podepsanou nabídku. Správa dokumentů a pravidla uzavření patří do Úlohy 2.</div>
+<form method="post" class="card case-form">{% csrf_token %}
+{% if form.errors %}<div class="error-summary" role="alert"><strong>Údaje se nepodařilo uložit.</strong> Zkontrolujte označená pole.{{ form.non_field_errors }}</div>{% endif %}
+<div class="form-grid">{% for field in form %}<div class="form-field {% if field.name == 'requirements' or field.name == 'questions' or field.name == 'notes' or field.name == 'closure_reason' %}full-width{% endif %}">
+<label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} <span class="required">(povinné)</span>{% endif %}</label>{{ field }}
+<div id="id_{{ field.name }}_helptext" class="helptext">{% if field.help_text %}{{ field.help_text }}{% endif %}</div>{{ field.errors }}
+</div>{% endfor %}</div>
+<div class="form-actions">{% if case %}<a class="button" href="{% url 'crm:case-detail' case.pk %}">Zrušit</a>{% else %}<a class="button" href="{% url 'crm:case-list' %}">Zrušit</a>{% endif %}<button class="primary" type="submit">{% if case %}Uložit změny{% else %}Založit případ{% endif %}</button></div>
+</form>
+{% endblock %}

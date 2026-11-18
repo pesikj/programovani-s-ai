@@ -1,0 +1,17 @@
+{% load static %}<!doctype html>
+<html lang="cs">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}Obchodní případy{% endblock %} · Webovka</title>
+<link rel="stylesheet" href="{% static 'crm/app.css' %}"></head>
+<body>
+<a class="skip-link" href="#main">Přejít na obsah</a>
+<aside class="sidebar">
+  <a class="brand" href="{% url 'crm:case-list' %}">Webovka</a>
+  <div class="muted">Lokální prototyp</div>
+  <nav aria-label="Hlavní navigace"><a class="nav-link active" href="{% url 'crm:case-list' %}"><span aria-hidden="true">▤</span> Obchodní případy</a></nav>
+  <div class="sidebar-foot">Úloha 1<br><span class="muted">Evidence obchodních případů</span></div>
+</aside>
+<main id="main" tabindex="-1">{% block content %}{% endblock %}
+<footer>Lokální verze · údaje jsou uložené v databázi SQLite na tomto počítači.</footer>
+</main>
+</body></html>
