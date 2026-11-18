@@ -13,7 +13,9 @@ def case_list(request):
         has_open_tasks=Exists(Task.objects.filter(case_id=OuterRef('pk'), completed_at__isnull=True)),
     )
     if query:
-        cases = cases.filter(Q(title__icontains=query) | Q(company__icontains=query))
+        cases = cases.filter(
+            Q(title__icontains=query) | Q(company__icontains=query) | Q(questions__icontains=query)
+        )
     return render(request, 'crm/case_list.html', {'cases': cases, 'query': query})
 
 

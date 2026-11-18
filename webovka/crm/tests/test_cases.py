@@ -57,6 +57,16 @@ class CaseTests(TestCase):
         self.assertNotContains(response, case.title)
         self.assertContains(response, 'Žádný odpovídající případ')
 
+    def test_search_matches_open_questions(self):
+        case = self.make_case(questions='Potřebujeme napojení na skladový systém?')
+        other = self.make_case(questions='Kdo schvaluje nabídku?')
+        for query in ('sklad', '  SKLAD  '):
+            with self.subTest(query=query):
+                response = self.client.get(reverse('crm:case-list'), {'q': query})
+                self.assertQuerySetEqual(response.context['cases'], [case])
+                self.assertContains(response, reverse('crm:case-detail', args=[case.pk]))
+                self.assertNotContains(response, reverse('crm:case-detail', args=[other.pk]))
+
     def test_update_notes_and_reopen_closed_case(self):
         case = self.make_case(stage='REJECTED', closure_reason='Vybrali konkurenci.')
         history = Handoff.objects.create(case=case, from_owner=self.other,

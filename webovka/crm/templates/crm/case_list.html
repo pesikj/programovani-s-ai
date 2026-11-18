@@ -2,12 +2,12 @@
 {% block content %}
 <header class="page-header"><div><div class="eyebrow">OBCHOD NA JEDNOM MÍSTĚ</div><h1>Obchodní případy Test</h1><p class="subtitle">Odstavec</p></div><a class="button primary" href="{% url 'crm:case-create' %}">+ Nový případ</a></header>
 <form method="get" class="search-form" role="search">
-<label for="search">Hledat případ nebo zákazníka</label><div class="search-row"><input id="search" type="search" name="q" value="{{ query }}" placeholder="Název případu nebo zákazníka…"><button type="submit">Hledat</button>{% if query %}<a class="button" href="{% url 'crm:case-list' %}">Zrušit hledání</a>{% endif %}</div>
+<label for="search">Hledat v názvu případu, zákazníkovi nebo otevřených otázkách</label><div class="search-row"><input id="search" type="search" name="q" value="{{ query }}" placeholder="Název případu, zákazník nebo otevřené otázky…"><button type="submit">Hledat</button>{% if query %}<a class="button" href="{% url 'crm:case-list' %}">Zrušit hledání</a>{% endif %}</div>
 </form>
 <section class="card case-list" aria-label="Seznam případů">
 {% for case in cases %}<article class="case-row">
 <div><h2><a href="{% url 'crm:case-detail' case.pk %}">{{ case.title }}</a></h2><p>{{ case.company }}</p><div class="muted small">Odpovědnost: {{ case.owner }}</div></div>
 <div class="row-status"><span class="badge {% if case.is_closed %}teal{% else %}amber{% endif %}">{{ case.get_stage_display }}</span>{% if not case.is_closed and not case.has_open_tasks %}<span class="badge neutral">Bez dalšího kroku</span>{% endif %}</div>
-</article>{% empty %}<div class="empty-state"><span class="empty-icon" aria-hidden="true">▤</span>{% if query %}<h2>Žádný odpovídající případ</h2><p>Zkuste jiný název případu nebo zákazníka.</p>{% else %}<h2>Zatím tu není žádný případ</h2><p>Založte první případ. Stačí název, zákazník a odpovědný člověk.</p><a class="button primary" href="{% url 'crm:case-create' %}">+ Založit první případ</a>{% endif %}</div>{% endfor %}
+</article>{% empty %}<div class="empty-state"><span class="empty-icon" aria-hidden="true">▤</span>{% if query %}<h2>Žádný odpovídající případ</h2><p>Zkuste jiný výraz z názvu případu, zákazníka nebo otevřených otázek.</p>{% else %}<h2>Zatím tu není žádný případ</h2><p>Založte první případ. Stačí název, zákazník a odpovědný člověk.</p><a class="button primary" href="{% url 'crm:case-create' %}">+ Založit první případ</a>{% endif %}</div>{% endfor %}
 </section>
 {% endblock %}
