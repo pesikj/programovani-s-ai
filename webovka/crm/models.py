@@ -32,6 +32,7 @@ class Case(models.Model):
     requirements = models.TextField('Požadavky', blank=True)
     budget = models.CharField('Rozpočet', max_length=200, blank=True)
     delivery = models.CharField('Termín dodání', max_length=200, blank=True)
+    offer_deadline = models.DateField('Termín odeslání nabídky', blank=True, null=True)
     questions = models.TextField('Otevřené otázky', blank=True)
     notes = models.TextField('Poznámky', blank=True)
     closure_reason = models.TextField('Důvod uzavření', blank=True)

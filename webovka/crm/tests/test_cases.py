@@ -38,6 +38,32 @@ class CaseTests(TestCase):
         self.assertContains(response, 'Bez dalšího kroku')
         self.assertContains(response, 'Nezjištěno')
 
+    def test_offer_deadline_can_be_created_edited_and_cleared(self):
+        response = self.client.post(reverse('crm:case-create'),
+                                    self.payload(offer_deadline='2027-02-15'))
+        case = Case.objects.get()
+        self.assertRedirects(response, reverse('crm:case-detail', args=[case.pk]))
+        self.assertEqual(case.offer_deadline, date(2027, 2, 15))
+        response = self.client.get(reverse('crm:case-detail', args=[case.pk]))
+        self.assertContains(response, 'Termín odeslání nabídky')
+        self.assertContains(response, '15. 2. 2027')
+        response = self.client.get(reverse('crm:case-update', args=[case.pk]))
+        self.assertContains(response, 'type="date"')
+        self.assertContains(response, 'value="2027-02-15"')
+        self.client.post(reverse('crm:case-update', args=[case.pk]),
+                         self.payload(offer_deadline='2027-03-01'))
+        case.refresh_from_db()
+        self.assertEqual(case.offer_deadline, date(2027, 3, 1))
+        response = self.client.post(reverse('crm:case-update', args=[case.pk]),
+                                    self.payload(offer_deadline='2027-02-30'))
+        self.assertIn('offer_deadline', response.context['form'].errors)
+        case.refresh_from_db()
+        self.assertEqual(case.offer_deadline, date(2027, 3, 1))
+        self.client.post(reverse('crm:case-update', args=[case.pk]),
+                         self.payload(offer_deadline=''))
+        case.refresh_from_db()
+        self.assertIsNone(case.offer_deadline)
+
     def test_blank_case_is_rejected(self):
         for changes in ({'title': '   '}, {'company': '   '}, {'owner': ''},
                         {'owner': self.inactive.pk}):
