@@ -57,6 +57,41 @@ class CaseTests(TestCase):
         self.assertNotContains(response, case.title)
         self.assertContains(response, 'Žádný odpovídající případ')
 
+    def test_filter_by_stage_and_show_all_stages(self):
+        cases = [self.make_case(stage=stage) for stage in Case.Stage.values]
+        for stage, label in Case.Stage.choices:
+            with self.subTest(stage=stage):
+                response = self.client.get(reverse('crm:case-list'), {'stage': stage})
+                self.assertEqual(list(response.context['cases']),
+                                 [case for case in cases if case.stage == stage])
+                self.assertContains(response, f'<option value="{stage}" selected>{label}</option>',
+                                    html=True)
+        for params in ({}, {'stage': ''}):
+            response = self.client.get(reverse('crm:case-list'), params)
+            self.assertCountEqual(response.context['cases'], cases)
+            self.assertContains(response, '<option value="" selected>Všechny stavy</option>',
+                                html=True)
+            for stage, label in Case.Stage.choices:
+                self.assertContains(response, f'<option value="{stage}">{label}</option>',
+                                    html=True)
+
+    def test_stage_filter_combines_with_search_and_preserves_values(self):
+        matching = self.make_case(stage=Case.Stage.WON)
+        self.make_case(stage=Case.Stage.ANALYSIS)
+        Case.objects.create(title='Jiný případ', company='Beta', owner=self.owner,
+                            stage=Case.Stage.WON)
+        for query in ('Modernizace', 'Alfa'):
+            with self.subTest(query=query):
+                response = self.client.get(reverse('crm:case-list'),
+                                           {'q': query, 'stage': Case.Stage.WON})
+                self.assertEqual(list(response.context['cases']), [matching])
+                self.assertContains(response, f'value="{query}"')
+                self.assertContains(response, '<option value="WON" selected>Vyhráno</option>',
+                                    html=True)
+        response = self.client.get(reverse('crm:case-list'), {'stage': Case.Stage.REJECTED})
+        self.assertContains(response, 'Žádný odpovídající případ')
+        self.assertNotContains(response, 'Zatím tu není žádný případ')
+
     def test_update_notes_and_reopen_closed_case(self):
         case = self.make_case(stage='REJECTED', closure_reason='Vybrali konkurenci.')
         history = Handoff.objects.create(case=case, from_owner=self.other,

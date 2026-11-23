@@ -9,12 +9,17 @@ from .models import Case, Task
 @require_safe
 def case_list(request):
     query = request.GET.get('q', '').strip()
+    stage = request.GET.get('stage', '')
     cases = Case.objects.select_related('owner').annotate(
         has_open_tasks=Exists(Task.objects.filter(case_id=OuterRef('pk'), completed_at__isnull=True)),
     )
     if query:
         cases = cases.filter(Q(title__icontains=query) | Q(company__icontains=query))
-    return render(request, 'crm/case_list.html', {'cases': cases, 'query': query})
+    if stage:
+        cases = cases.filter(stage=stage)
+    return render(request, 'crm/case_list.html', {
+        'cases': cases, 'query': query, 'stage': stage, 'stages': Case.Stage.choices,
+    })
 
 
 @require_safe
