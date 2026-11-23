@@ -7,9 +7,11 @@ class CaseForm(forms.ModelForm):
     class Meta:
         model = Case
         fields = ['title', 'company', 'owner', 'stage', 'requirements', 'budget',
-                  'delivery', 'questions', 'notes', 'closure_reason']
+                  'delivery', 'offer_deadline', 'questions', 'notes', 'closure_reason']
         widgets = {name: forms.Textarea(attrs={'rows': 4})
                    for name in ['requirements', 'questions', 'notes', 'closure_reason']}
+        widgets['offer_deadline'] = forms.DateInput(
+            format='%Y-%m-%d', attrs={'type': 'date'})
         help_texts = {
             'budget': 'Například 100–150 tisíc Kč. Nezjištěný údaj nechte prázdný.',
             'delivery': 'Například únor 2027. Nezjištěný údaj nechte prázdný.',
